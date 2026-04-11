@@ -132,7 +132,7 @@ static void insercion_lims(string T[], int inicial, int final)
 }
 
 
-const int UMBRAL_QS = 264;
+const int UMBRAL_QS = 2;
 
 
 inline void quicksort(string T[], int num_elem)
