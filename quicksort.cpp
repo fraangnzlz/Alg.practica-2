@@ -132,7 +132,7 @@ static void insercion_lims(string T[], int inicial, int final)
 }
 
 
-const int UMBRAL_QS = 2;
+int UMBRAL_QS = 256;
 
 
 inline void quicksort(string T[], int num_elem)
@@ -223,49 +223,68 @@ string StringPrefijo(string prefijo, int longitud_anadida){
   return resultado;
 }
 
-int main(int argc, char * argv[]){
+  int main(int argc, char * argv[]){
 
-  //Comprobacion de argumentos
-  if(argc != 2){
-    cerr << "\nError, introduce la cantidad correcta de argumentos" << endl;
+  //Hemos de pasarle 5 argumentos
+  if(argc != 5){
+    cerr << "\nUso: " << argv[0] << " <tamanio> <umbral> <tipo_string (1=Fijo, 2=Var, 3=Prefijo)> <algoritmo (0=QuickSort, 1=Insercion)>" << endl;
     return -1;
   }
 
-  //Pasamos con cast el argumento a entero
   int a = atoi(argv[1]);
+  UMBRAL_QS = atoi(argv[2]); // Cambiado a UMBRAL_QS
+  int tipo_string = atoi(argv[3]);
+  int algoritmo = atoi(argv[4]);
 
-  //Llamamos a la funcion para crear un vector dinámico
+  assert(tipo_string == 1 || tipo_string == 2 || tipo_string == 3);
+  assert(algoritmo == 0 || algoritmo == 1);
+
   string * V = new string[a];
   assert(V);
 
-  srand(time(0));
+  srand(time(0)); //semilla
+  string prefijo = "prefijo_largo_para_prueba";
 
-  //Llenamos el vector
-  for(int i = 0; i < a; i++){
-    //V[i] = StringFijo(50);
-
-
-    V[i] = StringVariable(10,100);
-
-
-    //V[i] = StringPrefijo("prefijo_largo_para_prueba",10);
+for(int i = 0; i < a; i++)
+  switch (tipo_string) {
+    case 1:
+      V[i] = StringFijo(50);
+      break;
+    case 2:
+      V[i] = StringVariable(10,100);
+      break;
+    case 3:
+      V[i] = StringPrefijo(prefijo,10);
 
   }
 
-  //Calculamos el tiempo
+ //Calculamos el tiempo
   auto start = chrono::high_resolution_clock::now();
 
-  quicksort(V,a);
+  if (algoritmo)
+    insercion(V,a);
+  else
+    quicksort(V,a); // Llamada a quicksort
 
   //Tiempo final
   auto end = chrono::high_resolution_clock::now();
   chrono::duration<double,std::milli> duration = end - start; //Calculamos el tiempo que tarda
 
   //Resultados:
-  cout << "\nQuicksort ejecutado para:" << a << endl;
-  cout << "\nUmbral utilizado: " << UMBRAL_QS << endl;
-  cout << "\nTiempo de ejecucion: " << duration.count() << " milisegundos" << endl;
-  
+  string nombre_algoritmo = (algoritmo == 1) ? "Insercion" : "QuickSort"; // Etiqueta actualizada
+  string nombre_string;
+  if (tipo_string == 1) nombre_string = "Fijo";
+  else if (tipo_string == 2) nombre_string = "Variable";
+  else nombre_string = "Prefijo";
+
+  // Resultados impresos en una sola línea (ideal para scripts y Excel)
+  // Formato: Algoritmo | Tamaño | Umbral | TipoString | Tiempo
+  cout << "Algoritmo: " << nombre_algoritmo
+       << " | Tamaño: " << a
+       << " | Umbral: " << UMBRAL_QS // Cambiado a UMBRAL_QS
+       << " | TipoString: " << nombre_string
+       << " | Tiempo: " << duration.count() << endl;
+
   //Liberamos memoria
   delete [] V;
 
