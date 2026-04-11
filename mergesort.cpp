@@ -205,6 +205,7 @@ string StringFijo(int longitud){
   return resultado;
 }
 
+
 string StringVariable(int longitud_minima, int longitud_maxima){
   assert(longitud_maxima >= longitud_minima);
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
