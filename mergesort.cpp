@@ -195,33 +195,33 @@ static void fusion(string T[], int inicial, int final, string U[], string V[])
 //FUNCIONES PARA STRING FIJO, VARIABLE Y CON PREFIJO
 string StringFijo(int longitud){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
-  string resultado = "";
+  string resultado;
 
   for(int i = 0; i < longitud; i++){
-    resultado += caracteres[rand() & caracteres.length()];
+    resultado += caracteres[rand() % caracteres.length()];
   }
 
   return resultado;
 }
 
 string StringVariable(int longitud_minima, int longitud_maxima){
+  assert(longitud_maxima >= longitud_minima);
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado = "";
-  int longitud = longitud_minima + rand() % (longitud_maxima - longitud_maxima + 1);
+  int longitud = longitud_minima + rand() % (longitud_maxima - longitud_minima + 1);
 
   for(int i = 0; i < longitud; i++){
-    resultado += caracteres[rand() & caracteres.length()];
+    resultado += caracteres[rand() % caracteres.length()];
   }
-
   return resultado;
 }
 
 string StringPrefijo(string prefijo, int longitud_anadida){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
-  string resultado = "";
+  string resultado;
 
   for(int i = 0; i < longitud_anadida; i++){
-    resultado += caracteres[rand() & caracteres.length()];
+    resultado += caracteres[rand() % caracteres.length()];
   }
 
   return resultado;
