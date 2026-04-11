@@ -132,7 +132,7 @@ static void insercion_lims(string T[], int inicial, int final)
 }
 
 
-const int UMBRAL_QS = 2;
+const int UMBRAL_QS = 256;
 
 
 inline void quicksort(string T[], int num_elem)
@@ -188,7 +188,7 @@ static void dividir_qs(string T[], int inicial, int final, int & pp)
 //TAMAÑO FIJO
 string StringFijo(int longitud){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
-  string resultado = "";
+  string resultado;
   
   for(int i = 0; i < longitud;++i){
     resultado += caracteres[rand() % caracteres.length()];
@@ -200,7 +200,7 @@ string StringFijo(int longitud){
 //TAMAÑO VARIABLE
 string StringVariable(int longitud_minima, int longitud_maxima){
   string caracteres = "abdefghiklmnopqrstuvwxyz";
-  string resultado = "";
+  string resultado;
 
   //Calculamos una longitud aleatoria para el vector
   int longitud = longitud_minima + rand() % (longitud_maxima - longitud_minima + 1); //+1!!
@@ -215,7 +215,7 @@ string StringVariable(int longitud_minima, int longitud_maxima){
 //CON PREFIJOS
 string StringPrefijo(string prefijo, int longitud_anadida){
   string caracteres = "abdefghiklmnopqrstuvwxyz";
-  string resultado = "";
+  string resultado;
 
   for(int i = 0; i < longitud_anadida;++i){
     resultado += caracteres[rand() % caracteres.length()];
