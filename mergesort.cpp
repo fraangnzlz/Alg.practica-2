@@ -201,6 +201,7 @@ string StringFijo(int longitud){
   for(int i = 0; i < longitud; i++){
     resultado += caracteres[rand() % 26];
   }
+
   return resultado;
 }
 

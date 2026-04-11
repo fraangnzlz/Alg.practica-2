@@ -209,7 +209,6 @@ string StringVariable(int longitud_minima, int longitud_maxima){
   return resultado;
 }
 
-
 //CON PREFIJOS
 string StringPrefijo(string prefijo, int longitud_anadida){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
