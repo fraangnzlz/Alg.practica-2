@@ -138,7 +138,7 @@ static void insercion_lims(string T[], int inicial, int final)
 }
 
 
-const int UMBRAL_MS = 256;
+int UMBRAL_MS = 256;
 
 void mergesort(string T[], int num_elem)
 {
@@ -173,7 +173,7 @@ static void mergesort_lims(string T[], int inicial, int final)
       delete [] V;
     };
 }
-  
+
 
 static void fusion(string T[], int inicial, int final, string U[], string V[])
 {
@@ -193,8 +193,6 @@ static void fusion(string T[], int inicial, int final, string U[], string V[])
 
 
 //FUNCIONES PARA STRING FIJO, VARIABLE Y CON PREFIJO
-
-//String fijo
 string StringFijo(int longitud){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado;
@@ -207,19 +205,12 @@ string StringFijo(int longitud){
   return resultado;
 }
 
-<<<<<<< HEAD
-//String variable
-=======
 
->>>>>>> 5ecd7b7eb0a3445329a4c5f65a7a253b0ea31e1d
 string StringVariable(int longitud_minima, int longitud_maxima){
   assert(longitud_maxima >= longitud_minima);
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado;
-<<<<<<< HEAD
-=======
   resultado.reserve(longitud_maxima);
->>>>>>> 5ecd7b7eb0a3445329a4c5f65a7a253b0ea31e1d
   int longitud = longitud_minima + rand() % (longitud_maxima - longitud_minima + 1);
 
   for(int i = 0; i < longitud; i++){
@@ -228,8 +219,6 @@ string StringVariable(int longitud_minima, int longitud_maxima){
   return resultado;
 }
 
-
-//String prefijo
 string StringPrefijo(string prefijo, int longitud_anadida){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado = prefijo;
@@ -244,44 +233,67 @@ string StringPrefijo(string prefijo, int longitud_anadida){
 
 
 int main(int argc, char * argv[]){
-  
-  //Hemos de pasarle 2 argumentos
-  if(argc != 2){
-    cerr << "\nIntroduce dos argumentos" << endl;
+
+  //Hemos de pasarle 5 argumentos
+  if(argc != 5){
+    cerr << "\nUso: " << argv[0] << " <tamanio> <umbral> <tipo_string (1=Fijo, 2=Var, 3=Prefijo)> <algoritmo (0=MergeSort, 1=Insercion)>" << endl;
     return -1;
   }
 
-int a = atoi(argv[1]);
+  int a = atoi(argv[1]);
+  UMBRAL_MS = atoi(argv[2]);
+  int tipo_string = atoi(argv[3]);
+  int algoritmo = atoi(argv[4]);
 
-string * V = new string[a];
-assert(V);
+  assert(tipo_string == 1 || tipo_string == 2 || tipo_string == 3);
+  assert(algoritmo == 0 || algoritmo == 1);
 
-srand(time(0));
+  string * V = new string[a];
+  assert(V);
 
-for(int i = 0; i < a; i++){
+  srand(time(0)); //semilla
+  string prefijo = "prefijo_largo_para_prueba";
 
-  //V[i] = StringFijo(50);
+for(int i = 0; i < a; i++)
+  switch (tipo_string) {
+    case 1:
+      V[i] = StringFijo(50);
+      break;
+    case 2:
+      V[i] = StringVariable(10,100);
+      break;
+    case 3:
+      V[i] = StringPrefijo(prefijo,10);
 
-  V[i] = StringVariable(10,100);
-
-  //V[i] = StringPrefijo("prefijo_muy_largo_para_prueba",10);
-
-}
+  }
 
  //Calculamos el tiempo
   auto start = chrono::high_resolution_clock::now();
 
-  mergesort(V,a);
+  if (algoritmo)
+    insercion(V,a);
+  else
+    mergesort(V,a);
 
   //Tiempo final
   auto end = chrono::high_resolution_clock::now();
   chrono::duration<double,std::milli> duration = end - start; //Calculamos el tiempo que tarda
 
   //Resultados:
-  cout << "\nMergeSort ejecutado para:" << a << endl;
-  cout << "\nUmbral utilizado: " << UMBRAL_MS << endl;
-  cout << "\nTiempo de ejecucion: " << duration.count() << " milisegundos" << endl;
-  
+  string nombre_algoritmo = (algoritmo == 1) ? "Insercion" : "MergeSort";
+  string nombre_string;
+  if (tipo_string == 1) nombre_string = "Fijo";
+  else if (tipo_string == 2) nombre_string = "Variable";
+  else nombre_string = "Prefijo";
+
+  // Resultados impresos en una sola línea (ideal para scripts y Excel)
+  // Formato: Algoritmo | Tamaño | Umbral | TipoString | Tiempo
+  cout << "Algoritmo: " << nombre_algoritmo
+       << " | Tamaño: " << a
+       << " | Umbral: " << UMBRAL_MS
+       << " | TipoString: " << nombre_string
+       << " | Tiempo: " << duration.count() << endl;
+
   //Liberamos memoria
   delete [] V;
 
