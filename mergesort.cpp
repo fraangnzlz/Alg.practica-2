@@ -196,22 +196,23 @@ static void fusion(string T[], int inicial, int final, string U[], string V[])
 string StringFijo(int longitud){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado;
+  resultado.reserve(longitud);
 
   for(int i = 0; i < longitud; i++){
     resultado += caracteres[rand() % caracteres.length()];
   }
-
   return resultado;
 }
 
 string StringVariable(int longitud_minima, int longitud_maxima){
   assert(longitud_maxima >= longitud_minima);
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
-  string resultado = "";
+  string resultado;
+  resultado.reserve(longitud_maxima);
   int longitud = longitud_minima + rand() % (longitud_maxima - longitud_minima + 1);
 
   for(int i = 0; i < longitud; i++){
-    resultado += caracteres[rand() % caracteres.length()];
+    resultado += caracteres[rand() % 27];
   }
   return resultado;
 }
@@ -263,7 +264,7 @@ for(int i = 0; i < a; i++){
   chrono::duration<double,std::milli> duration = end - start; //Calculamos el tiempo que tarda
 
   //Resultados:
-  cout << "\nQuicksort ejecutado para:" << a << endl;
+  cout << "\nMergeSort ejecutado para:" << a << endl;
   cout << "\nUmbral utilizado: " << UMBRAL_MS << endl;
   cout << "\nTiempo de ejecucion: " << duration.count() << " milisegundos" << endl;
   

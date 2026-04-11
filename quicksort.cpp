@@ -185,29 +185,27 @@ static void dividir_qs(string T[], int inicial, int final, int & pp)
 //FUNCIONES PARA GENERAR VECTORES DE TAMAÑO FIJOS Y VARIABLE Y CON PREFIJOS
 
 
-//TAMAÑO FIJO
 string StringFijo(int longitud){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
-  string resultado = "";
-  
-  for(int i = 0; i < longitud;++i){
+  string resultado;
+  resultado.reserve(longitud);
+
+  for(int i = 0; i < longitud; i++){
     resultado += caracteres[rand() % caracteres.length()];
   }
-
   return resultado;
 }
 
-//TAMAÑO VARIABLE
 string StringVariable(int longitud_minima, int longitud_maxima){
-  string caracteres = "abdefghiklmnopqrstuvwxyz";
-  string resultado = "";
+  assert(longitud_maxima >= longitud_minima);
+  string caracteres = "abcdefghijklmnopqrstuvwxyz";
+  string resultado;
+  resultado.reserve(longitud_maxima);
+  int longitud = longitud_minima + rand() % (longitud_maxima - longitud_minima + 1);
 
-  //Calculamos una longitud aleatoria para el vector
-  int longitud = longitud_minima + rand() % (longitud_maxima - longitud_minima + 1); //+1!!
-  for(int i = 0; i < longitud;i++){
-    resultado += caracteres[rand() % caracteres.length()];
+  for(int i = 0; i < longitud; i++){
+    resultado += caracteres[rand() % 27];
   }
-
   return resultado;
 }
 
