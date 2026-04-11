@@ -184,7 +184,6 @@ static void dividir_qs(string T[], int inicial, int final, int & pp)
 
 //FUNCIONES PARA GENERAR VECTORES DE TAMAÑO FIJOS Y VARIABLE Y CON PREFIJOS
 
-
 string StringFijo(int longitud){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado;
@@ -270,14 +269,13 @@ for(int i = 0; i < a; i++)
   auto end = chrono::high_resolution_clock::now();
   chrono::duration<double,std::milli> duration = end - start; //Calculamos el tiempo que tarda
 
-  //Resultados:
+  //RESULTADOS:
   string nombre_algoritmo = (algoritmo == 1) ? "Insercion" : "QuickSort"; // Etiqueta actualizada
   string nombre_string;
   if (tipo_string == 1) nombre_string = "Fijo";
   else if (tipo_string == 2) nombre_string = "Variable";
   else nombre_string = "Prefijo";
 
-  // Resultados impresos en una sola línea (ideal para scripts y Excel)
   // Formato: Algoritmo | Tamaño | Umbral | TipoString | Tiempo
   cout << "Algoritmo: " << nombre_algoritmo
        << " | Tamaño: " << a
@@ -285,7 +283,6 @@ for(int i = 0; i < a; i++)
        << " | TipoString: " << nombre_string
        << " | Tiempo: " << duration.count() << endl;
 
-  //Liberamos memoria
   delete [] V;
 
   return 0;

@@ -286,7 +286,6 @@ for(int i = 0; i < a; i++)
   else if (tipo_string == 2) nombre_string = "Variable";
   else nombre_string = "Prefijo";
 
-  // Resultados impresos en una sola línea (ideal para scripts y Excel)
   // Formato: Algoritmo | Tamaño | Umbral | TipoString | Tiempo
   cout << "Algoritmo: " << nombre_algoritmo
        << " | Tamaño: " << a
@@ -294,7 +293,6 @@ for(int i = 0; i < a; i++)
        << " | TipoString: " << nombre_string
        << " | Tiempo: " << duration.count() << endl;
 
-  //Liberamos memoria
   delete [] V;
 
   return 0;
