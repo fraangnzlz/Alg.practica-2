@@ -212,11 +212,12 @@ string StringVariable(int longitud_minima, int longitud_maxima){
 
 //CON PREFIJOS
 string StringPrefijo(string prefijo, int longitud_anadida){
-  string caracteres = "abdefghiklmnopqrstuvwxyz";
-  string resultado = "";
+  string caracteres = "abcdefghijklmnopqrstuvwxyz";
+  string resultado = prefijo;
+  resultado.reserve(resultado.length() + longitud_anadida);
 
-  for(int i = 0; i < longitud_anadida;++i){
-    resultado += caracteres[rand() % caracteres.length()];
+  for(int i = 0; i < longitud_anadida; i++) {
+    resultado += caracteres[rand() % 26];
   }
 
   return resultado;

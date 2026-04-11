@@ -199,7 +199,7 @@ string StringFijo(int longitud){
   resultado.reserve(longitud);
 
   for(int i = 0; i < longitud; i++){
-    resultado += caracteres[rand() % caracteres.length()];
+    resultado += caracteres[rand() % 26];
   }
   return resultado;
 }
@@ -212,17 +212,18 @@ string StringVariable(int longitud_minima, int longitud_maxima){
   int longitud = longitud_minima + rand() % (longitud_maxima - longitud_minima + 1);
 
   for(int i = 0; i < longitud; i++){
-    resultado += caracteres[rand() % 27];
+    resultado += caracteres[rand() % 26];
   }
   return resultado;
 }
 
 string StringPrefijo(string prefijo, int longitud_anadida){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
-  string resultado;
+  string resultado = prefijo;
+  resultado.reserve(resultado.length() + longitud_anadida);
 
-  for(int i = 0; i < longitud_anadida; i++){
-    resultado += caracteres[rand() % caracteres.length()];
+  for(int i = 0; i < longitud_anadida; i++) {
+    resultado += caracteres[rand() % 26];
   }
 
   return resultado;
