@@ -138,7 +138,7 @@ static void insercion_lims(string T[], int inicial, int final)
 }
 
 
-const int UMBRAL_MS = 100;
+const int UMBRAL_MS = 256;
 
 void mergesort(string T[], int num_elem)
 {
@@ -245,9 +245,9 @@ srand(time(0));
 
 for(int i = 0; i < a; i++){
 
-  V[i] = StringFijo(50);
+  //V[i] = StringFijo(50);
 
-  //V[i] == StringVariable(10,100);
+  V[i] = StringVariable(10,100);
 
   //V[i] = StringPrefijo("prefijo_muy_largo_para_prueba",10);
 

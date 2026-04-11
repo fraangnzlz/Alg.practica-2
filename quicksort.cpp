@@ -132,7 +132,7 @@ static void insercion_lims(string T[], int inicial, int final)
 }
 
 
-const int UMBRAL_QS = 50;
+const int UMBRAL_QS = 256;
 
 
 inline void quicksort(string T[], int num_elem)
@@ -243,10 +243,10 @@ int main(int argc, char * argv[]){
 
   //Llenamos el vector
   for(int i = 0; i < a; i++){
-    V[i] = StringFijo(50);
+    //V[i] = StringFijo(50);
 
 
-    //V[i] = StringVariable(10,100);
+    V[i] = StringVariable(10,100);
 
 
     //V[i] = StringPrefijo("prefijo_largo_para_prueba",10);
