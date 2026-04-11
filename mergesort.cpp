@@ -198,23 +198,32 @@ static void fusion(string T[], int inicial, int final, string U[], string V[])
 string StringFijo(int longitud){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado;
+  resultado.reserve(longitud);
 
   for(int i = 0; i < longitud; i++){
-    resultado += caracteres[rand() % caracteres.length()];
+    resultado += caracteres[rand() % 26];
   }
 
   return resultado;
 }
 
+<<<<<<< HEAD
 //String variable
+=======
+
+>>>>>>> 5ecd7b7eb0a3445329a4c5f65a7a253b0ea31e1d
 string StringVariable(int longitud_minima, int longitud_maxima){
   assert(longitud_maxima >= longitud_minima);
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado;
+<<<<<<< HEAD
+=======
+  resultado.reserve(longitud_maxima);
+>>>>>>> 5ecd7b7eb0a3445329a4c5f65a7a253b0ea31e1d
   int longitud = longitud_minima + rand() % (longitud_maxima - longitud_minima + 1);
 
   for(int i = 0; i < longitud; i++){
-    resultado += caracteres[rand() % caracteres.length()];
+    resultado += caracteres[rand() % 26];
   }
   return resultado;
 }
@@ -223,10 +232,11 @@ string StringVariable(int longitud_minima, int longitud_maxima){
 //String prefijo
 string StringPrefijo(string prefijo, int longitud_anadida){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
-  string resultado;
+  string resultado = prefijo;
+  resultado.reserve(resultado.length() + longitud_anadida);
 
-  for(int i = 0; i < longitud_anadida; i++){
-    resultado += caracteres[rand() % caracteres.length()];
+  for(int i = 0; i < longitud_anadida; i++) {
+    resultado += caracteres[rand() % 26];
   }
 
   return resultado;
@@ -268,7 +278,7 @@ for(int i = 0; i < a; i++){
   chrono::duration<double,std::milli> duration = end - start; //Calculamos el tiempo que tarda
 
   //Resultados:
-  cout << "\nQuicksort ejecutado para:" << a << endl;
+  cout << "\nMergeSort ejecutado para:" << a << endl;
   cout << "\nUmbral utilizado: " << UMBRAL_MS << endl;
   cout << "\nTiempo de ejecucion: " << duration.count() << " milisegundos" << endl;
   
