@@ -15,9 +15,6 @@ using namespace std;
 const double NUM_PRUEBAS = 10.f;
 
 template <typename T>
-inline static void quicksort(T Tvec[], int num_elem);
-
-template <typename T>
 static void quicksort_lims(T Tvec[], int inicial, int final);
 
 template <typename T>
@@ -38,93 +35,6 @@ static void mergesort_lims(T Tvec[], int inicial, int final);
 
 template <typename T>
 static void fusion(T Tvec[], int inicial, int final, T U[], T V[]);
-
-/**
-   @brief Ordena un vector por el m�todo quicksort.
-
-   @param T: vector de elementos. Debe tener num_elem elementos.
-             Es MODIFICADO.
-   @param num_elem: n�mero de elementos. num_elem > 0.
-
-   Cambia el orden de los elementos de T de forma que los dispone
-   en sentido creciente de menor a mayor.
-   Aplica el algoritmo quicksort.
-*/
-inline static
-void quicksort(string T[], int num_elem);
-
-
-/**
-   @brief Ordena parte de un vector por el m�todo quicksort.
-
-   @param T: vector de elementos. Tiene un nmero de elementos
-                   mayor o igual a final. Es MODIFICADO.
-   @param inicial: Posicin que marca el incio de la parte del
-                   vector a ordenar.
-   @param final: Posicin detrs de la ltima de la parte del
-                   vector a ordenar.
-		   inicial < final.
-
-   Cambia el orden de los elementos de T entre las posiciones
-   inicial y final - 1 de forma que los dispone en sentido creciente
-   de menor a mayor.
-   Aplica el algoritmo quicksort.
-*/
-static void quicksort_lims(string T[], int inicial, int final);
-
-
-/**
-   @brief Ordena un vector por el mtodo de insercin.
-
-   @param T: vector de elementos. Debe tener num_elem elementos.
-             Es MODIFICADO.
-   @param num_elem: nmero de elementos. num_elem > 0.
-
-   Cambia el orden de los elementos de T de forma que los dispone
-   en sentido creciente de menor a mayor.
-   Aplica el algoritmo de insercin.
-*/
-inline static
-void insercion(string T[], int num_elem);
-
-
-/**
-   @brief Ordena parte de un vector por el mtodo de insercin.
-
-   @param T: vector de elementos. Tiene un nmero de elementos
-                   mayor o igual a final. Es MODIFICADO.
-   @param inicial: Posicin que marca el incio de la parte del
-                   vector a ordenar.
-   @param final: Posicin detrs de la ltima de la parte del
-                   vector a ordenar.
-		   inicial < final.
-
-   Cambia el orden de los elementos de T entre las posiciones
-   inicial y final - 1 de forma que los dispone en sentido creciente
-   de menor a mayor.
-   Aplica el algoritmo de insercin.
-*/
-static void insercion_lims(string T[], int inicial, int final);
-
-
-/**
-   @brief Redistribuye los elementos de un vector segn un pivote.
-
-   @param T: vector de elementos. Tiene un nmero de elementos
-                   mayor o igual a final. Es MODIFICADO.
-   @param inicial: Posicin que marca el incio de la parte del
-                   vector a ordenar.
-   @param final: Posicin detrs de la ltima de la parte del
-                   vector a ordenar.
-		   inicial < final.
-   @param pp: Posicin del pivote. Es MODIFICADO.
-
-   Selecciona un pivote los elementos de T situados en las posiciones
-   entre inicial y final - 1. Redistribuye los elementos, situando los
-   menores que el pivote a su izquierda, despus los iguales y a la
-   derecha los mayores. La posicin del pivote se devuelve en pp.
-*/
-static void dividir_qs(string T[], int inicial, int final, int & pp);
 
 
 /**
@@ -318,8 +228,8 @@ string CalcularPrefijo(const int numDatos) {
   return prefijo;
 }
 
-int EnteroAleatorio(const int cota_superior, const int cota_inferior){
-  return (rand() % (cota_superior - cota_inferior + 1)) + cota_inferior;
+int EnteroAleatorio(const int cota_superior, const int cota_inferior) {
+  return cota_inferior + rand() % (cota_superior - cota_inferior + 1);
 }
 
 //FUNCIONES PARA GENERAR VECTORES DE TAMAÑO FIJOS Y VARIABLE Y CON PREFIJOS
@@ -343,7 +253,7 @@ string StringVariable(const int longitud_minima, const int longitud_maxima){
   int longitud = longitud_minima + rand() % (longitud_maxima - longitud_minima + 1);
 
   for(int i = 0; i < longitud; i++){
-    resultado += caracteres[rand() % 27];
+    resultado += caracteres[rand() % 26];
   }
   return resultado;
 }
@@ -402,8 +312,16 @@ void Test(const int a, const int b, const int paso, const string algoritmo) {
     string *Prefijo = new string[i];
 
     //inicializar vectores
-    // srand(time(0));
-    // string prefijo = CalcularPrefijo(i);
+    srand(time(0));
+    string prefijo = CalcularPrefijo(i);
+
+    for (int j = 0; j < i; j++) {
+      Enteros[j] = EnteroAleatorio(b, a);
+      FijoPequeno[j] = StringFijo(5);
+      FijoGrande[j] = StringFijo(500);
+      Variable[j] = StringVariable(5,500);
+      Prefijo[j] = StringPrefijo(prefijo, 15);
+    }
 
     //ordenarlos y medir el tiempo
 
@@ -412,6 +330,10 @@ void Test(const int a, const int b, const int paso, const string algoritmo) {
     double tiempo_fijo_grande = medir_ordenacion(FijoGrande, i, algoritmo);
     double tiempo_variable = medir_ordenacion(Variable, i, algoritmo);
     double tiempo_prefijo = medir_ordenacion(Prefijo, i, algoritmo);
+
+    //imprimir resultados
+    cout << i << "," << tiempo_enteros << "," << tiempo_fijo_pequeno << ","
+         << tiempo_fijo_grande << "," << tiempo_variable << "," << tiempo_prefijo << endl;
 
     //librerar espacio
     delete [] Enteros;
@@ -465,7 +387,7 @@ int main(int argc, char * argv[]) {
     Test(a,b,paso, algoritmo);
 
   } else { //N fijo, Umbral Variable
-
+      exit(-1);
   }
 
   return 0;
