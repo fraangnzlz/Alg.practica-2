@@ -260,7 +260,7 @@ for(int i = 0; i < a; i++)
       V[i] = StringFijo(50);
       break;
     case 2:
-      V[i] = StringVariable(10,100);
+      V[i] = StringVariable(10,500);
       break;
     case 3:
       V[i] = StringPrefijo(prefijo,10);

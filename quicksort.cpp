@@ -34,7 +34,7 @@ void quicksort(string T[], int num_elem);
 /**
    @brief Ordena parte de un vector por el m�todo quicksort.
 
-   @param T: vector de elementos. Tiene un n�mero de elementos 
+   @param T: vector de elementos. Tiene un n�mero de elementos
                    mayor o igual a final. Es MODIFICADO.
    @param inicial: Posici�n que marca el incio de la parte del
                    vector a ordenar.
@@ -68,7 +68,7 @@ void insercion(string T[], int num_elem);
 /**
    @brief Ordena parte de un vector por el m�todo de inserci�n.
 
-   @param T: vector de elementos. Tiene un n�mero de elementos 
+   @param T: vector de elementos. Tiene un n�mero de elementos
                    mayor o igual a final. Es MODIFICADO.
    @param inicial: Posici�n que marca el incio de la parte del
                    vector a ordenar.
@@ -87,7 +87,7 @@ static void insercion_lims(string T[], int inicial, int final);
 /**
    @brief Redistribuye los elementos de un vector seg�n un pivote.
 
-   @param T: vector de elementos. Tiene un n�mero de elementos 
+   @param T: vector de elementos. Tiene un n�mero de elementos
                    mayor o igual a final. Es MODIFICADO.
    @param inicial: Posici�n que marca el incio de la parte del
                    vector a ordenar.
@@ -104,9 +104,51 @@ static void insercion_lims(string T[], int inicial, int final);
 static void dividir_qs(string T[], int inicial, int final, int & pp);
 
 
+/**
+ * @brief Genera un prefijo cuya longitud crece con el número de datos.
+ *
+ * @param numDatos Número de datos usado para ajustar el tamaño del prefijo.
+ * @return Cadena prefijo generada.
+ */
+string CalcularPrefijo(const int numDatos);
 
 /**
-   Implementaci�n de las funciones
+ * @brief Genera un entero aleatorio dentro de un rango cerrado.
+ *
+ * @param cota_superior Límite superior del rango.
+ * @param cota_inferior Límite inferior del rango.
+ * @return Entero aleatorio entre cota_inferior y cota_superior.
+ */
+int EnteroAleatorio(const int cota_superior, const int cota_inferior);
+
+/**
+ * @brief Genera una cadena aleatoria de longitud fija.
+ *
+ * @param longitud Longitud de la cadena a generar.
+ * @return Cadena aleatoria formada por letras minúsculas.
+ */
+string StringFijo(const int longitud);
+
+/**
+ * @brief Genera una cadena aleatoria con longitud variable.
+ *
+ * @param longitud_minima Longitud mínima de la cadena.
+ * @param longitud_maxima Longitud máxima de la cadena.
+ * @return Cadena aleatoria formada por letras minúsculas.
+ */
+string StringVariable(const int longitud_minima, const int longitud_maxima);
+
+/**
+ * @brief Genera una cadena aleatoria a partir de un prefijo dado.
+ *
+ * @param prefijo Prefijo inicial de la cadena.
+ * @param longitud_anadida Número de caracteres aleatorios a añadir.
+ * @return Cadena resultante con el prefijo y caracteres aleatorios.
+ */
+string StringPrefijo(const string prefijo, const int longitud_anadida);
+
+/**
+   Implementacin de las funciones
 **/
 
 
@@ -180,11 +222,25 @@ static void dividir_qs(string T[], int inicial, int final, int & pp)
   pp = l;
 };
 
+string CalcularPrefijo(const int numDatos) {
+  //El prefijo debe ser proporcional al numero de datos
+  string prefijo = "prefijo_proporcionalmente_largo";
 
+  if (numDatos >= 1000) {
+    int longitud = numDatos / 1000;
+    for (int i = 0; i < longitud; i++)
+      prefijo += "_y_se_hace_cada_vez_mas_largo_y_mas_largo_y_mas_largo";
+  }
+  return prefijo;
+}
+
+int EnteroAleatorio(const int cota_superior, const int cota_inferior){
+  return (rand() % (cota_superior - cota_inferior + 1)) + cota_inferior;
+}
 
 //FUNCIONES PARA GENERAR VECTORES DE TAMAÑO FIJOS Y VARIABLE Y CON PREFIJOS
 
-string StringFijo(int longitud){
+string StringFijo(const int longitud){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado;
   resultado.reserve(longitud);
@@ -195,7 +251,7 @@ string StringFijo(int longitud){
   return resultado;
 }
 
-string StringVariable(int longitud_minima, int longitud_maxima){
+string StringVariable(const int longitud_minima, const int longitud_maxima){
   assert(longitud_maxima >= longitud_minima);
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado;
@@ -210,7 +266,7 @@ string StringVariable(int longitud_minima, int longitud_maxima){
 
 
 //CON PREFIJOS
-string StringPrefijo(string prefijo, int longitud_anadida){
+string StringPrefijo(const string prefijo, const int longitud_anadida){
   string caracteres = "abcdefghijklmnopqrstuvwxyz";
   string resultado = prefijo;
   resultado.reserve(resultado.length() + longitud_anadida);
@@ -225,7 +281,7 @@ string StringPrefijo(string prefijo, int longitud_anadida){
   int main(int argc, char * argv[]){
 
   //Hemos de pasarle 5 argumentos
-  if(argc != 5){
+  if(argc != 2){
     cerr << "\nUso: " << argv[0] << " <tamanio> <umbral> <tipo_string (1=Fijo, 2=Var, 3=Prefijo)> <algoritmo (0=QuickSort, 1=Insercion)>" << endl;
     return -1;
   }
@@ -242,7 +298,7 @@ string StringPrefijo(string prefijo, int longitud_anadida){
   assert(V);
 
   srand(time(0)); //semilla
-  string prefijo = "prefijo_largo_para_prueba";
+  string prefijo = CalcularPrefijo(a);
 
 for(int i = 0; i < a; i++)
   switch (tipo_string) {
@@ -250,11 +306,12 @@ for(int i = 0; i < a; i++)
       V[i] = StringFijo(50);
       break;
     case 2:
-      V[i] = StringVariable(10,100);
+      V[i] = StringVariable(5,500);
       break;
     case 3:
       V[i] = StringPrefijo(prefijo,10);
-
+      break;
+    default: break;
   }
 
  //Calculamos el tiempo
@@ -288,4 +345,3 @@ for(int i = 0; i < a; i++)
   return 0;
 
 }
-
