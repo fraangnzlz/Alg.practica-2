@@ -13,8 +13,24 @@ using namespace std;
 #include <chrono>
 
 
+
 /* ************************************************************ */
-/*  M�todo de ordenaci�n r�pida  */
+
+
+template <typename T>
+inline static void quicksort(T Tvec[], int num_elem);
+
+template <typename T>
+static void quicksort_lims(T Tvec[], int inicial, int final);
+
+template <typename T>
+inline static void insercion(T Tvec[], int num_elem);
+
+template <typename T>
+static void insercion_lims(T Tvec[], int inicial, int final);
+
+template <typename T>
+static void dividir_qs(T Tvec[], int inicial, int final, int &pp);
 
 /**
    @brief Ordena un vector por el m�todo quicksort.
@@ -34,11 +50,11 @@ void quicksort(string T[], int num_elem);
 /**
    @brief Ordena parte de un vector por el m�todo quicksort.
 
-   @param T: vector de elementos. Tiene un n�mero de elementos
+   @param T: vector de elementos. Tiene un nmero de elementos
                    mayor o igual a final. Es MODIFICADO.
-   @param inicial: Posici�n que marca el incio de la parte del
+   @param inicial: Posicin que marca el incio de la parte del
                    vector a ordenar.
-   @param final: Posici�n detr�s de la �ltima de la parte del
+   @param final: Posicin detrs de la ltima de la parte del
                    vector a ordenar.
 		   inicial < final.
 
@@ -51,55 +67,55 @@ static void quicksort_lims(string T[], int inicial, int final);
 
 
 /**
-   @brief Ordena un vector por el m�todo de inserci�n.
+   @brief Ordena un vector por el mtodo de insercin.
 
    @param T: vector de elementos. Debe tener num_elem elementos.
              Es MODIFICADO.
-   @param num_elem: n�mero de elementos. num_elem > 0.
+   @param num_elem: nmero de elementos. num_elem > 0.
 
    Cambia el orden de los elementos de T de forma que los dispone
    en sentido creciente de menor a mayor.
-   Aplica el algoritmo de inserci�n.
+   Aplica el algoritmo de insercin.
 */
 inline static
 void insercion(string T[], int num_elem);
 
 
 /**
-   @brief Ordena parte de un vector por el m�todo de inserci�n.
+   @brief Ordena parte de un vector por el mtodo de insercin.
 
-   @param T: vector de elementos. Tiene un n�mero de elementos
+   @param T: vector de elementos. Tiene un nmero de elementos
                    mayor o igual a final. Es MODIFICADO.
-   @param inicial: Posici�n que marca el incio de la parte del
+   @param inicial: Posicin que marca el incio de la parte del
                    vector a ordenar.
-   @param final: Posici�n detr�s de la �ltima de la parte del
+   @param final: Posicin detrs de la ltima de la parte del
                    vector a ordenar.
 		   inicial < final.
 
    Cambia el orden de los elementos de T entre las posiciones
    inicial y final - 1 de forma que los dispone en sentido creciente
    de menor a mayor.
-   Aplica el algoritmo de inserci�n.
+   Aplica el algoritmo de insercin.
 */
 static void insercion_lims(string T[], int inicial, int final);
 
 
 /**
-   @brief Redistribuye los elementos de un vector seg�n un pivote.
+   @brief Redistribuye los elementos de un vector segn un pivote.
 
-   @param T: vector de elementos. Tiene un n�mero de elementos
+   @param T: vector de elementos. Tiene un nmero de elementos
                    mayor o igual a final. Es MODIFICADO.
-   @param inicial: Posici�n que marca el incio de la parte del
+   @param inicial: Posicin que marca el incio de la parte del
                    vector a ordenar.
-   @param final: Posici�n detr�s de la �ltima de la parte del
+   @param final: Posicin detrs de la ltima de la parte del
                    vector a ordenar.
 		   inicial < final.
-   @param pp: Posici�n del pivote. Es MODIFICADO.
+   @param pp: Posicin del pivote. Es MODIFICADO.
 
    Selecciona un pivote los elementos de T situados en las posiciones
    entre inicial y final - 1. Redistribuye los elementos, situando los
-   menores que el pivote a su izquierda, despu�s los iguales y a la
-   derecha los mayores. La posici�n del pivote se devuelve en pp.
+   menores que el pivote a su izquierda, despus los iguales y a la
+   derecha los mayores. La posicin del pivote se devuelve en pp.
 */
 static void dividir_qs(string T[], int inicial, int final, int & pp);
 
@@ -152,73 +168,74 @@ string StringPrefijo(const string prefijo, const int longitud_anadida);
 **/
 
 
-inline static void insercion(string T[], int num_elem)
+template <typename T>
+inline static void insercion(T Tvec[], int num_elem)
 {
-  insercion_lims(T, 0, num_elem);
+  insercion_lims(Tvec, 0, num_elem);
 }
 
-
-static void insercion_lims(string T[], int inicial, int final)
+template <typename T>
+static void insercion_lims(T Tvec[], int inicial, int final)
 {
   int i, j;
-  string aux;
+  T aux;
   for (i = inicial + 1; i < final; i++) {
     j = i;
-    while ((T[j] < T[j-1]) && (j > 0)) {
-      aux = T[j];
-      T[j] = T[j-1];
-      T[j-1] = aux;
+    while ((Tvec[j] < Tvec[j-1]) && (j > 0)) {
+      aux = Tvec[j];
+      Tvec[j] = Tvec[j-1];
+      Tvec[j-1] = aux;
       j--;
     };
   };
 }
 
-
 int UMBRAL_QS = 256;
 
-
-inline void quicksort(string T[], int num_elem)
+template <typename T>
+inline static void quicksort(T Tvec[], int num_elem)
 {
-  quicksort_lims(T, 0, num_elem);
+  quicksort_lims(Tvec, 0, num_elem);
 }
 
-static void quicksort_lims(string T[], int inicial, int final)
+template <typename T>
+static void quicksort_lims(T Tvec[], int inicial, int final)
 {
   int k;
   if (final - inicial < UMBRAL_QS) {
-    insercion_lims(T, inicial, final);
+    insercion_lims(Tvec, inicial, final);
   } else {
-    dividir_qs(T, inicial, final, k);
-    quicksort_lims(T, inicial, k);
-    quicksort_lims(T, k + 1, final);
+    dividir_qs(Tvec, inicial, final, k);
+    quicksort_lims(Tvec, inicial, k);
+    quicksort_lims(Tvec, k + 1, final);
   };
 }
 
-
-static void dividir_qs(string T[], int inicial, int final, int & pp)
+template <typename T>
+static void dividir_qs(T Tvec[], int inicial, int final, int & pp)
 {
-  string pivote, aux;
+  T pivote, aux;
   int k, l;
 
-  pivote = T[inicial];
+  pivote = Tvec[inicial];
   k = inicial;
   l = final;
   do {
     k++;
-  } while ((T[k] <= pivote) && (k < final-1));
+  } while ((Tvec[k] <= pivote) && (k < final-1));
   do {
     l--;
-  } while (T[l] > pivote);
+  } while (Tvec[l] > pivote);
   while (k < l) {
-    aux = T[k];
-    T[k] = T[l];
-    T[l] = aux;
-    do k++; while (T[k] <= pivote);
-    do l--; while (T[l] > pivote);
+    aux = Tvec[k];
+    Tvec[k] = Tvec[l];
+    Tvec[l] = aux;
+    do k++; while (Tvec[k] <= pivote);
+    do l--; while (Tvec[l] > pivote);
   };
-  aux = T[inicial];
-  T[inicial] = T[l];
-  T[l] = aux;
+  aux = Tvec[inicial];
+  Tvec[inicial] = Tvec[l];
+  Tvec[l] = aux;
   pp = l;
 };
 
@@ -279,71 +296,85 @@ string StringPrefijo(const string prefijo, const int longitud_anadida){
   return resultado;
 }
 
-  int main(int argc, char * argv[]){
+void primerPrueba(const int a, const int b, const int paso, const string algoritmo) {
 
-  //Hemos de pasarle 5 argumentos
-  if(argc != 2){
-    cerr << "\nUso: " << argv[0] << " <algoritmo>"<< endl;
+
+  for (int i = a; i <= b; i+=paso) {
+    //reservar 5 vectores:
+    int *Enteros = new int[i];
+    string *FijoPequeno = new string[i];
+    string *FijoGrande = new string[i];
+    string *Variable = new string[i];
+    string *Prefijo = new string[i];
+
+    //inicializar vectores
+    // srand(time(0));
+    // string prefijo = CalcularPrefijo(i);
+
+    //ordenarlos
+
+    if (algoritmo == "quicksort") {
+      quicksort(Enteros,i);
+    }else if (algoritmo == "mergesort") {
+
+    }else if (algoritmo == "insercion") {
+
+    }
+
+    //librerar espacio
+    delete [] Enteros;
+    delete [] FijoPequeno;
+    delete [] FijoGrande;
+    delete [] Variable;
+    delete [] Prefijo;
+
+  }
+
+}
+
+int main(int argc, char * argv[]) {
+
+  if (argc != 2) {
+    cerr << "\nUso: " << argv[0] << " <algoritmo>\n"
+         << "Algoritmos validos: mergesort, quicksort, insercion" << endl;
     return -1;
   }
 
+  string algoritmo = argv[1];
 
-  int a = atoi(argv[1]);
-  UMBRAL_QS = atoi(argv[2]); // Cambiado a UMBRAL_QS
-  int tipo_string = atoi(argv[3]);
-  int algoritmo = atoi(argv[4]);
-
-  assert(tipo_string == 1 || tipo_string == 2 || tipo_string == 3);
-  assert(algoritmo == 0 || algoritmo == 1);
-
-  string * V = new string[a];
-  assert(V);
-
-  srand(time(0)); //semilla
-  string prefijo = CalcularPrefijo(a);
-
-for(int i = 0; i < a; i++)
-  switch (tipo_string) {
-    case 1:
-      V[i] = StringFijo(50);
-      break;
-    case 2:
-      V[i] = StringVariable(5,500);
-      break;
-    case 3:
-      V[i] = StringPrefijo(prefijo,10);
-      break;
-    default: break;
+  if (algoritmo != "mergesort" && algoritmo != "quicksort" && algoritmo != "insercion") {
+    cerr << "ERROR: algoritmo no valido";
+    cerr << "\nUso: " << argv[0] << " <algoritmo>\n";
+    return -1;
   }
 
- //Calculamos el tiempo
-  auto start = chrono::high_resolution_clock::now();
+  int opcion = 0;
+  cout << endl << "Elige el tipo de experimento:" << endl;
+  cout << "  1) Umbral fijo con numero de elementos variable" << endl;
+  cout << "  2) Umbral variable con numero de elementos fijo" << endl;
+  cout << "Opcion: ";
+  cin >> opcion;
 
-  if (algoritmo)
-    insercion(V,a);
-  else
-    quicksort(V,a); // Llamada a quicksort
+  if (opcion != 1 && opcion != 2) {
+    cerr << "Error: opcion no valida." << endl;
+    return -1;
+  }
 
-  //Tiempo final
-  auto end = chrono::high_resolution_clock::now();
-  chrono::duration<double,std::milli> duration = end - start; //Calculamos el tiempo que tarda
+  if (opcion == 1) { //Umbral fijo, N variable
+    cout << "Umbral: ";
+    cin >> UMBRAL_QS;
+    cout << endl << "[a,b] =  ";
+    int a, b, paso;
+    cin >> a >> b;
+    cout << endl << "Introduzca el paso: ";
+    cin >> paso;
+    assert(a<b && paso >= 1 && paso <= b-a);
 
-  //RESULTADOS:
-  string nombre_algoritmo = (algoritmo == 1) ? "Insercion" : "QuickSort"; // Etiqueta actualizada
-  string nombre_string;
-  if (tipo_string == 1) nombre_string = "Fijo";
-  else if (tipo_string == 2) nombre_string = "Variable";
-  else nombre_string = "Prefijo";
+    primerPrueba(a,b,paso, algoritmo);
 
-  // Formato: Algoritmo | Tamaño | Umbral | TipoString | Tiempo
-  cout << "Algoritmo: " << nombre_algoritmo
-       << " | Tamaño: " << a
-       << " | Umbral: " << UMBRAL_QS // Cambiado a UMBRAL_QS
-       << " | TipoString: " << nombre_string
-       << " | Tiempo: " << duration.count() << endl;
+  } else { //N fijo, Umbral Variable
 
-  delete [] V;
+  }
 
   return 0;
-
 }
