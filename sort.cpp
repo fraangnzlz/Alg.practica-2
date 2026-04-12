@@ -2,7 +2,7 @@
    @file Ordenaci�n r�pida (quicksort).
 */
 
-   
+
 #include <iostream>
 using namespace std;
 #include <ctime>
@@ -13,7 +13,7 @@ using namespace std;
 #include <chrono>
 
 
-/* ************************************************************ */ 
+/* ************************************************************ */
 /*  M�todo de ordenaci�n r�pida  */
 
 /**
@@ -27,7 +27,7 @@ using namespace std;
    en sentido creciente de menor a mayor.
    Aplica el algoritmo quicksort.
 */
-inline static 
+inline static
 void quicksort(string T[], int num_elem);
 
 
@@ -39,7 +39,7 @@ void quicksort(string T[], int num_elem);
    @param inicial: Posici�n que marca el incio de la parte del
                    vector a ordenar.
    @param final: Posici�n detr�s de la �ltima de la parte del
-                   vector a ordenar. 
+                   vector a ordenar.
 		   inicial < final.
 
    Cambia el orden de los elementos de T entre las posiciones
@@ -61,7 +61,7 @@ static void quicksort_lims(string T[], int inicial, int final);
    en sentido creciente de menor a mayor.
    Aplica el algoritmo de inserci�n.
 */
-inline static 
+inline static
 void insercion(string T[], int num_elem);
 
 
@@ -73,7 +73,7 @@ void insercion(string T[], int num_elem);
    @param inicial: Posici�n que marca el incio de la parte del
                    vector a ordenar.
    @param final: Posici�n detr�s de la �ltima de la parte del
-                   vector a ordenar. 
+                   vector a ordenar.
 		   inicial < final.
 
    Cambia el orden de los elementos de T entre las posiciones
@@ -92,7 +92,7 @@ static void insercion_lims(string T[], int inicial, int final);
    @param inicial: Posici�n que marca el incio de la parte del
                    vector a ordenar.
    @param final: Posici�n detr�s de la �ltima de la parte del
-                   vector a ordenar. 
+                   vector a ordenar.
 		   inicial < final.
    @param pp: Posici�n del pivote. Es MODIFICADO.
 
