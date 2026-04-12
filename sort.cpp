@@ -12,10 +12,7 @@ using namespace std;
 #include <string>
 #include <chrono>
 
-
-
-/* ************************************************************ */
-
+const double NUM_PRUEBAS = 10.f;
 
 template <typename T>
 inline static void quicksort(T Tvec[], int num_elem);
@@ -31,6 +28,16 @@ static void insercion_lims(T Tvec[], int inicial, int final);
 
 template <typename T>
 static void dividir_qs(T Tvec[], int inicial, int final, int &pp);
+
+// ---- NUEVO: mergesort genérico ----
+template <typename T>
+inline static void mergesort(T Tvec[], int num_elem);
+
+template <typename T>
+static void mergesort_lims(T Tvec[], int inicial, int final);
+
+template <typename T>
+static void fusion(T Tvec[], int inicial, int final, T U[], T V[]);
 
 /**
    @brief Ordena un vector por el m�todo quicksort.
@@ -183,14 +190,14 @@ static void insercion_lims(T Tvec[], int inicial, int final)
     j = i;
     while ((Tvec[j] < Tvec[j-1]) && (j > 0)) {
       aux = Tvec[j];
-      Tvec[j] = Tvec[j-1];
-      Tvec[j-1] = aux;
+      Tvec[j] = Tvec[j - 1];
+      Tvec[j - 1] = aux;
       j--;
     };
   };
 }
 
-int UMBRAL_QS = 256;
+int UMBRAL = 256;
 
 template <typename T>
 inline static void quicksort(T Tvec[], int num_elem)
@@ -202,7 +209,7 @@ template <typename T>
 static void quicksort_lims(T Tvec[], int inicial, int final)
 {
   int k;
-  if (final - inicial < UMBRAL_QS) {
+  if (final - inicial < UMBRAL) {
     insercion_lims(Tvec, inicial, final);
   } else {
     dividir_qs(Tvec, inicial, final, k);
@@ -222,7 +229,7 @@ static void dividir_qs(T Tvec[], int inicial, int final, int & pp)
   l = final;
   do {
     k++;
-  } while ((Tvec[k] <= pivote) && (k < final-1));
+  } while ((k < final - 1) && (Tvec[k] <= pivote));
   do {
     l--;
   } while (Tvec[l] > pivote);
@@ -230,14 +237,74 @@ static void dividir_qs(T Tvec[], int inicial, int final, int & pp)
     aux = Tvec[k];
     Tvec[k] = Tvec[l];
     Tvec[l] = aux;
-    do k++; while (Tvec[k] <= pivote);
+    do k++; while ((k < final) && (Tvec[k] <= pivote));
     do l--; while (Tvec[l] > pivote);
-  };
+  }
   aux = Tvec[inicial];
   Tvec[inicial] = Tvec[l];
   Tvec[l] = aux;
   pp = l;
 };
+
+// ---- NUEVO: mergesort genérico ----
+template <typename T>
+inline static void mergesort(T Tvec[], int num_elem)
+{
+  mergesort_lims(Tvec, 0, num_elem);
+}
+
+template <typename T>
+static void mergesort_lims(T Tvec[], int inicial, int final)
+{
+  if (final - inicial < UMBRAL) {
+    insercion_lims(Tvec, inicial, final);
+  } else {
+    int k = inicial + (final - inicial) / 2;
+
+    T *U = new T[k - inicial];
+    assert(U);
+    int l, l2;
+    for (l = 0, l2 = inicial; l < k - inicial; l++, l2++)
+      U[l] = Tvec[l2];
+
+    T *V = new T[final - k];
+    assert(V);
+    for (l = 0, l2 = k; l < final - k; l++, l2++)
+      V[l] = Tvec[l2];
+
+    mergesort_lims(U, 0, k - inicial);
+    mergesort_lims(V, 0, final - k);
+    fusion(Tvec, inicial, final, U, V);
+
+    delete [] U;
+    delete [] V;
+  }
+}
+
+template <typename T>
+static void fusion(T Tvec[], int inicial, int final, T U[], T V[])
+{
+  int j = 0;
+  int k = 0;
+  int tamU = (final - inicial) / 2;
+  int tamV = final - inicial - tamU;
+
+  for (int i = inicial; i < final; i++) {
+    if (j >= tamU) {
+      Tvec[i] = V[k];
+      k++;
+    } else if (k >= tamV) {
+      Tvec[i] = U[j];
+      j++;
+    } else if (U[j] < V[k]) {
+      Tvec[i] = U[j];
+      j++;
+    } else {
+      Tvec[i] = V[k];
+      k++;
+    }
+  }
+}
 
 string CalcularPrefijo(const int numDatos) {
   //El prefijo debe ser proporcional al numero de datos
@@ -296,8 +363,35 @@ string StringPrefijo(const string prefijo, const int longitud_anadida){
   return resultado;
 }
 
-void primerPrueba(const int a, const int b, const int paso, const string algoritmo) {
+template <typename T>
+double medir_ordenacion(T* V, int n, const string& algoritmo) {
+  double suma = 0.0;
+  T* copia = new T[n];
 
+  for (int i = 0; i < NUM_PRUEBAS; i++) {
+    for (int j = 0; j < n; j++) {
+      copia[j] = V[j];
+    }
+
+    auto start = chrono::high_resolution_clock::now();
+
+    if (algoritmo == "quicksort") {
+      quicksort(copia, n);
+    } else if (algoritmo == "mergesort") {
+      mergesort(copia, n);
+    } else if (algoritmo == "insercion") {
+      insercion(copia, n);
+    }
+
+    auto end = chrono::high_resolution_clock::now();
+    suma += chrono::duration<double, std::milli>(end - start).count();
+  }
+
+  delete [] copia;
+  return suma / NUM_PRUEBAS;
+}
+
+void Test(const int a, const int b, const int paso, const string algoritmo) {
 
   for (int i = a; i <= b; i+=paso) {
     //reservar 5 vectores:
@@ -311,15 +405,13 @@ void primerPrueba(const int a, const int b, const int paso, const string algorit
     // srand(time(0));
     // string prefijo = CalcularPrefijo(i);
 
-    //ordenarlos
+    //ordenarlos y medir el tiempo
 
-    if (algoritmo == "quicksort") {
-      quicksort(Enteros,i);
-    }else if (algoritmo == "mergesort") {
-
-    }else if (algoritmo == "insercion") {
-
-    }
+    double tiempo_enteros = medir_ordenacion(Enteros, i, algoritmo);
+    double tiempo_fijo_pequeno = medir_ordenacion(FijoPequeno, i, algoritmo);
+    double tiempo_fijo_grande = medir_ordenacion(FijoGrande, i, algoritmo);
+    double tiempo_variable = medir_ordenacion(Variable, i, algoritmo);
+    double tiempo_prefijo = medir_ordenacion(Prefijo, i, algoritmo);
 
     //librerar espacio
     delete [] Enteros;
@@ -362,7 +454,7 @@ int main(int argc, char * argv[]) {
 
   if (opcion == 1) { //Umbral fijo, N variable
     cout << "Umbral: ";
-    cin >> UMBRAL_QS;
+    cin >> UMBRAL;
     cout << endl << "[a,b] =  ";
     int a, b, paso;
     cin >> a >> b;
@@ -370,7 +462,7 @@ int main(int argc, char * argv[]) {
     cin >> paso;
     assert(a<b && paso >= 1 && paso <= b-a);
 
-    primerPrueba(a,b,paso, algoritmo);
+    Test(a,b,paso, algoritmo);
 
   } else { //N fijo, Umbral Variable
 
