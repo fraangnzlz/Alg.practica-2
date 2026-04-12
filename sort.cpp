@@ -301,7 +301,7 @@ double medir_ordenacion(T* V, int n, const string& algoritmo) {
   return suma / NUM_PRUEBAS;
 }
 
-void Test(const int a, const int b, const int paso, const string algoritmo) {
+void Test1(const int a, const int b, const int paso, const string algoritmo) {
 
   for (int i = a; i <= b; i+=paso) {
     //reservar 5 vectores:
@@ -341,9 +341,7 @@ void Test(const int a, const int b, const int paso, const string algoritmo) {
     delete [] FijoGrande;
     delete [] Variable;
     delete [] Prefijo;
-
   }
-
 }
 
 int main(int argc, char * argv[]) {
@@ -384,10 +382,18 @@ int main(int argc, char * argv[]) {
     cin >> paso;
     assert(a<b && paso >= 1 && paso <= b-a);
 
-    Test(a,b,paso, algoritmo);
+    Test1(a,b,paso, algoritmo);
 
   } else { //N fijo, Umbral Variable
-      exit(-1);
+    int N;
+    cout << "N =  ";
+    cin >> N;
+    cout << endl << "[a,b] =  ";
+    int a, b, paso;
+    cin >> a >> b;
+    cout << endl << "Introduzca el paso: ";
+    cin >> paso;
+    assert(a<b && paso >= 1 && paso <= b-a);
   }
 
   return 0;
