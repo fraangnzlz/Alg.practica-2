@@ -275,6 +275,7 @@ string StringPrefijo(const string prefijo, const int longitud_anadida){
     resultado += caracteres[rand() % 26];
   }
 
+
   return resultado;
 }
 
