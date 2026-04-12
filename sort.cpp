@@ -312,7 +312,6 @@ void Test1(const int a, const int b, const int paso, const string algoritmo) {
     string *Prefijo = new string[i];
 
     //inicializar vectores
-    srand(time(0));
     string prefijo = CalcularPrefijo(i);
 
     for (int j = 0; j < i; j++) {
@@ -336,6 +335,92 @@ void Test1(const int a, const int b, const int paso, const string algoritmo) {
          << tiempo_fijo_grande << "," << tiempo_variable << "," << tiempo_prefijo << endl;
 
     //librerar espacio
+    delete [] Enteros;
+    delete [] FijoPequeno;
+    delete [] FijoGrande;
+    delete [] Variable;
+    delete [] Prefijo;
+  }
+}
+
+void Test2A(const int n, const int umbral_min, const int umbral_max, const string algoritmo) {
+  // Iteracion lineal: umbral de 1 en 1
+  for (int umbral = umbral_min; umbral <= umbral_max && umbral <= 256; umbral++) {
+    UMBRAL = umbral;
+
+    //reservar 5 vectores:
+    int *Enteros = new int[n];
+    string *FijoPequeno = new string[n];
+    string *FijoGrande = new string[n];
+    string *Variable = new string[n];
+    string *Prefijo = new string[n];
+
+    //inicializar vectores
+    string prefijo = CalcularPrefijo(n);
+
+    for (int j = 0; j < n; j++) {
+      Enteros[j] = EnteroAleatorio(1000, 1);
+      FijoPequeno[j] = StringFijo(5);
+      FijoGrande[j] = StringFijo(500);
+      Variable[j] = StringVariable(5,500);
+      Prefijo[j] = StringPrefijo(prefijo, 15);
+    }
+
+    //ordenarlos y medir el tiempo
+    double tiempo_enteros = medir_ordenacion(Enteros, n, algoritmo);
+    double tiempo_fijo_pequeno = medir_ordenacion(FijoPequeno, n, algoritmo);
+    double tiempo_fijo_grande = medir_ordenacion(FijoGrande, n, algoritmo);
+    double tiempo_variable = medir_ordenacion(Variable, n, algoritmo);
+    double tiempo_prefijo = medir_ordenacion(Prefijo, n, algoritmo);
+
+    //imprimir resultados
+    cout << umbral << "," << tiempo_enteros << "," << tiempo_fijo_pequeno << ","
+         << tiempo_fijo_grande << "," << tiempo_variable << "," << tiempo_prefijo << endl;
+
+    //liberar espacio
+    delete [] Enteros;
+    delete [] FijoPequeno;
+    delete [] FijoGrande;
+    delete [] Variable;
+    delete [] Prefijo;
+  }
+}
+
+void Test2B(const int n, const int partida, const string algoritmo) {
+  // Iteracion en potencias de 2
+  for (int umbral = partida; umbral <= 256; umbral *= 2) {
+    UMBRAL = umbral;
+
+    //reservar 5 vectores:
+    int *Enteros = new int[n];
+    string *FijoPequeno = new string[n];
+    string *FijoGrande = new string[n];
+    string *Variable = new string[n];
+    string *Prefijo = new string[n];
+
+    //inicializar vectores
+    string prefijo = CalcularPrefijo(n);
+
+    for (int j = 0; j < n; j++) {
+      Enteros[j] = EnteroAleatorio(1000, 1);
+      FijoPequeno[j] = StringFijo(5);
+      FijoGrande[j] = StringFijo(500);
+      Variable[j] = StringVariable(5,500);
+      Prefijo[j] = StringPrefijo(prefijo, 15);
+    }
+
+    //ordenarlos y medir el tiempo
+    double tiempo_enteros = medir_ordenacion(Enteros, n, algoritmo);
+    double tiempo_fijo_pequeno = medir_ordenacion(FijoPequeno, n, algoritmo);
+    double tiempo_fijo_grande = medir_ordenacion(FijoGrande, n, algoritmo);
+    double tiempo_variable = medir_ordenacion(Variable, n, algoritmo);
+    double tiempo_prefijo = medir_ordenacion(Prefijo, n, algoritmo);
+
+    //imprimir resultados
+    cout << umbral << "," << tiempo_enteros << "," << tiempo_fijo_pequeno << ","
+         << tiempo_fijo_grande << "," << tiempo_variable << "," << tiempo_prefijo << endl;
+
+    //liberar espacio
     delete [] Enteros;
     delete [] FijoPequeno;
     delete [] FijoGrande;
@@ -372,6 +457,7 @@ int main(int argc, char * argv[]) {
     return -1;
   }
 
+  srand(time(0));
   if (opcion == 1) { //Umbral fijo, N variable
     cout << "Umbral: ";
     cin >> UMBRAL;
@@ -386,15 +472,30 @@ int main(int argc, char * argv[]) {
 
   } else { //N fijo, Umbral Variable
     int N;
-    cout << "N =  ";
+    cout << "Numero de elementos (N): ";
     cin >> N;
-    cout << endl << "[a,b] =  ";
-    int a, b, paso;
+    cout << endl << "Rango de umbrales [a,b]: ";
+    int a, b, eleccion, partida=0;
     cin >> a >> b;
-    cout << endl << "Introduzca el paso: ";
-    cin >> paso;
-    assert(a<b && paso >= 1 && paso <= b-a);
+    cout << endl << "Modo de incremento:" << endl;
+    cout << "  1) Paso lineal de 1 en 1" << endl;
+    cout << "  2) Paso en potencias de 2 hasta 256" << endl;
+    cout << "Opcion: ";
+    cin >> eleccion;
+    if (eleccion == 2) {
+      cout << endl << "Introduzca el punto de partida (potencia de 2): ";
+      cin >> partida;
+      assert(partida >= 1 && partida <= 256);
+    }
+    assert(a < b && b <= 256 && (eleccion == 1 || eleccion == 2));
+
+    if (eleccion == 1) {
+      Test2A(N, a, b, algoritmo);
+    } else {
+      Test2B(N, partida, algoritmo);
+    }
   }
+
 
   return 0;
 }
