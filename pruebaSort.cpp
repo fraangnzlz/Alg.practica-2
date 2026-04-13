@@ -231,7 +231,9 @@ string StringPrefijo(const string prefijo, const int longitud_anadida) {
 
 void init_enteros(int* vec, int n) {
   for (int i = 0; i < n; i++)
-    vec[i] = EnteroAleatorio(1000, 1);
+    vec[i] = EnteroAleatorio(INT_MAX, 1);
+  //ponemos INT_MAX para que para numeros mas grandes no repita muchos numeros
+  //y por ende no ocurra el problema del peor caso de quicksort
 }
 
 void init_fijo_pequeno(string* vec, int n) {
@@ -285,7 +287,13 @@ double medir_ordenacion(T* V, int n, const string& algoritmo) {
 
     auto end = chrono::high_resolution_clock::now();
     suma += chrono::duration<double, milli>(end - start).count();
-  }
+
+    //como lo compilamos con la optimizacion -O3, asi evitamos
+    //que se carge a la copia porque no la usamos tras ordenarla
+    volatile T dummy = copia[n / 2];
+    (void)dummy;
+
+   }
 
   delete [] copia;
   return suma / NUM_PRUEBAS;
@@ -350,7 +358,7 @@ void medir_tipo(int n, const int* umbrales, int num_umbrales, const string& algo
 }
 
 /**
- * @brief Imprime los resultados en formato CSV.
+ * @brief Imprime los resultados en un .txt
  *
  * Primera columna: parámetro variable (N o umbral).
  * Columnas 2-6:   tiempos para cada tipo de dato.
@@ -369,13 +377,13 @@ void imprimir_resultados(const string& nombre_archivo,
     cerr << "Error: No se pudo abrir o crear el archivo " << nombre_archivo << "\n";
     return;
   }
-
+    archivo << "Umbral\t Enteros\t StringFP\t StringFG\t StringVar\t StringP \n";
   for (int i = 0; i < num; i++) {
-    archivo << param[i]              << ","
-            << tiempos_enteros[i]    << ","
-            << tiempos_fijo_pequeno[i] << ","
-            << tiempos_fijo_grande[i]  << ","
-            << tiempos_variable[i]     << ","
+    archivo << param[i]              << "\t"
+            << tiempos_enteros[i]    << "\t"
+            << tiempos_fijo_pequeno[i] << "\t"
+            << tiempos_fijo_grande[i]  << "\t"
+            << tiempos_variable[i]     << "\t"
             << tiempos_prefijo[i]      << "\n";
   }
 
