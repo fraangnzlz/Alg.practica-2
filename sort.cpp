@@ -31,10 +31,10 @@ template <typename T>
 inline static void mergesort(T Tvec[], int num_elem);
 
 template <typename T>
-static void mergesort_lims(T Tvec[], int inicial, int final);
+static void mergesort_lims(T Tvec[], int inicial, int final, T buffer[]);
 
 template <typename T>
-static void fusion(T Tvec[], int inicial, int final, T U[], T V[]);
+static void fusion(T Tvec[], int inicial, int medio, int final, T buffer[]);
 
 
 /**
@@ -98,7 +98,7 @@ static void insercion_lims(T Tvec[], int inicial, int final)
   T aux;
   for (i = inicial + 1; i < final; i++) {
     j = i;
-    while ((Tvec[j] < Tvec[j-1]) && (j > 0)) {
+    while ((Tvec[j] < Tvec[j-1]) && (j > inicial)) {
       aux = Tvec[j];
       Tvec[j] = Tvec[j - 1];
       Tvec[j - 1] = aux;
@@ -160,70 +160,61 @@ static void dividir_qs(T Tvec[], int inicial, int final, int & pp)
 template <typename T>
 inline static void mergesort(T Tvec[], int num_elem)
 {
-  mergesort_lims(Tvec, 0, num_elem);
+  T *buffer = new T[num_elem];
+  mergesort_lims(Tvec, 0, num_elem, buffer);
+  delete [] buffer;
 }
 
 template <typename T>
-static void mergesort_lims(T Tvec[], int inicial, int final)
+static void mergesort_lims(T Tvec[], int inicial, int final, T buffer[])
 {
   if (final - inicial < UMBRAL) {
     insercion_lims(Tvec, inicial, final);
   } else {
-    int k = inicial + (final - inicial) / 2;
+    int medio = inicial + (final - inicial) / 2;
 
-    T *U = new T[k - inicial];
-    assert(U);
-    int l, l2;
-    for (l = 0, l2 = inicial; l < k - inicial; l++, l2++)
-      U[l] = Tvec[l2];
-
-    T *V = new T[final - k];
-    assert(V);
-    for (l = 0, l2 = k; l < final - k; l++, l2++)
-      V[l] = Tvec[l2];
-
-    mergesort_lims(U, 0, k - inicial);
-    mergesort_lims(V, 0, final - k);
-    fusion(Tvec, inicial, final, U, V);
-
-    delete [] U;
-    delete [] V;
+    mergesort_lims(Tvec, inicial, medio, buffer);
+    mergesort_lims(Tvec, medio, final, buffer);
+    fusion(Tvec, inicial, medio, final, buffer);
   }
 }
 
 template <typename T>
-static void fusion(T Tvec[], int inicial, int final, T U[], T V[])
+static void fusion(T Tvec[], int inicial, int medio, int final, T buffer[])
 {
-  int j = 0;
+  int i = inicial;
+  int j = medio;
   int k = 0;
-  int tamU = (final - inicial) / 2;
-  int tamV = final - inicial - tamU;
 
-  for (int i = inicial; i < final; i++) {
-    if (j >= tamU) {
-      Tvec[i] = V[k];
-      k++;
-    } else if (k >= tamV) {
-      Tvec[i] = U[j];
-      j++;
-    } else if (U[j] < V[k]) {
-      Tvec[i] = U[j];
-      j++;
+  while (i < medio && j < final) {
+    if (Tvec[i] < Tvec[j]) {
+      buffer[k++] = Tvec[i++];
     } else {
-      Tvec[i] = V[k];
-      k++;
+      buffer[k++] = Tvec[j++];
     }
+  }
+
+  while (i < medio) {
+    buffer[k++] = Tvec[i++];
+  }
+
+  while (j < final) {
+    buffer[k++] = Tvec[j++];
+  }
+
+  for (int i = 0; i < k; i++) {
+    Tvec[inicial + i] = buffer[i];
   }
 }
 
 string CalcularPrefijo(const int numDatos) {
   //El prefijo debe ser proporcional al numero de datos
-  string prefijo = "prefijo_proporcionalmente_largo";
+  string prefijo = "prefijo";
 
-  if (numDatos >= 1000) {
-    int longitud = numDatos / 1000;
+  if (numDatos >= 100000) {
+    int longitud = min(numDatos / 10000, 5);
     for (int i = 0; i < longitud; i++)
-      prefijo += "_y_se_hace_cada_vez_mas_largo_y_mas_largo_y_mas_largo";
+      prefijo += "_se_hace_mas_largo_y";
   }
   return prefijo;
 }
@@ -301,132 +292,350 @@ double medir_ordenacion(T* V, int n, const string& algoritmo) {
   return suma / NUM_PRUEBAS;
 }
 
+/**
+ * @brief Función genérica para medir tiempos de un tipo de vector específico
+ *
+ * @tparam T Tipo de dato del vector
+ * @tparam InitFunc Función de inicialización: void(T*, int, parametros_extra)
+ * @param sizes Array con los tamaños/umbrales a probar
+ * @param num_sizes Número de elementos en sizes
+ * @param tiempos Array donde se guardarán los tiempos
+ * @param algoritmo Nombre del algoritmo
+ * @param init_func Función para inicializar el vector
+ */
+template <typename T, typename InitFunc>
+void medir_tiempos_tipo(const int* sizes, int num_sizes, double* tiempos,
+                        const string& algoritmo, InitFunc init_func) {
+  for (int idx = 0; idx < num_sizes; idx++) {
+    int n = sizes[idx];
+    T* vec = new T[n];
+    init_func(vec, n);
+    tiempos[idx] = medir_ordenacion(vec, n, algoritmo);
+    delete [] vec;
+  }
+}
+
+/**
+ * @brief Imprime los resultados en formato CSV
+ */
+void imprimir_resultados(const int* sizes, int num_sizes,
+                        const double* tiempos_enteros,
+                        const double* tiempos_fijo_pequeno,
+                        const double* tiempos_fijo_grande,
+                        const double* tiempos_variable,
+                        const double* tiempos_prefijo) {
+  for (int i = 0; i < num_sizes; i++) {
+    cout << sizes[i] << "," << tiempos_enteros[i] << ","
+         << tiempos_fijo_pequeno[i] << "," << tiempos_fijo_grande[i] << ","
+         << tiempos_variable[i] << "," << tiempos_prefijo[i] << endl;
+  }
+}
+
+// Funciones de inicialización para cada tipo
+void init_enteros(int* vec, int n) {
+  for (int i = 0; i < n; i++) {
+    vec[i] = EnteroAleatorio(1000, 1);
+  }
+}
+
+void init_fijo_pequeno(string* vec, int n) {
+  for (int i = 0; i < n; i++) {
+    vec[i] = StringFijo(5);
+  }
+}
+
+void init_fijo_grande(string* vec, int n) {
+  for (int i = 0; i < n; i++) {
+    vec[i] = StringFijo(20);
+  }
+}
+
+void init_variable(string* vec, int n) {
+  for (int i = 0; i < n; i++) {
+    vec[i] = StringVariable(5, 20);
+  }
+}
+
+void init_prefijo(string* vec, int n) {
+  string prefijo = CalcularPrefijo(n);
+  for (int i = 0; i < n; i++) {
+    vec[i] = StringPrefijo(prefijo, 10);
+  }
+}
+
 void Test1(const int a, const int b, const int paso, const string algoritmo) {
+  // Calcular número de tamaños a probar
+  int num_tamaños = (b - a) / paso + 1;
 
-  for (int i = a; i <= b; i+=paso) {
-    //reservar 5 vectores:
+  // Vectores para almacenar resultados de cada tamaño
+  double *tiempos_enteros = new double[num_tamaños];
+  double *tiempos_fijo_pequeno = new double[num_tamaños];
+  double *tiempos_fijo_grande = new double[num_tamaños];
+  double *tiempos_variable = new double[num_tamaños];
+  double *tiempos_prefijo = new double[num_tamaños];
+  int *tamaños_usados = new int[num_tamaños];
+
+  // Procesar cada tipo de vector por separado
+  // 1. Enteros
+  int idx = 0;
+  for (int i = a; i <= b; i += paso, idx++) {
+    tamaños_usados[idx] = i;
     int *Enteros = new int[i];
-    string *FijoPequeno = new string[i];
-    string *FijoGrande = new string[i];
-    string *Variable = new string[i];
-    string *Prefijo = new string[i];
-
-    //inicializar vectores
-    string prefijo = CalcularPrefijo(i);
 
     for (int j = 0; j < i; j++) {
-      Enteros[j] = EnteroAleatorio(b, a);
-      FijoPequeno[j] = StringFijo(5);
-      FijoGrande[j] = StringFijo(500);
-      Variable[j] = StringVariable(5,500);
-      Prefijo[j] = StringPrefijo(prefijo, 15);
+      Enteros[j] = EnteroAleatorio(1000, 1);
     }
-
-    //ordenarlos y medir el tiempo
-
-    double tiempo_enteros = medir_ordenacion(Enteros, i, algoritmo);
-    double tiempo_fijo_pequeno = medir_ordenacion(FijoPequeno, i, algoritmo);
-    double tiempo_fijo_grande = medir_ordenacion(FijoGrande, i, algoritmo);
-    double tiempo_variable = medir_ordenacion(Variable, i, algoritmo);
-    double tiempo_prefijo = medir_ordenacion(Prefijo, i, algoritmo);
-
-    //imprimir resultados
-    cout << i << "," << tiempo_enteros << "," << tiempo_fijo_pequeno << ","
-         << tiempo_fijo_grande << "," << tiempo_variable << "," << tiempo_prefijo << endl;
-
-    //librerar espacio
+    tiempos_enteros[idx] = medir_ordenacion(Enteros, i, algoritmo);
     delete [] Enteros;
+  }
+
+  // 2. String Fijo Pequeño
+  idx = 0;
+  for (int i = a; i <= b; i += paso, idx++) {
+    string *FijoPequeno = new string[i];
+    for (int j = 0; j < i; j++) {
+      FijoPequeno[j] = StringFijo(5);
+    }
+    tiempos_fijo_pequeno[idx] = medir_ordenacion(FijoPequeno, i, algoritmo);
     delete [] FijoPequeno;
+  }
+
+  // 3. String Fijo Grande
+  idx = 0;
+  for (int i = a; i <= b; i += paso, idx++) {
+    string *FijoGrande = new string[i];
+    for (int j = 0; j < i; j++) {
+      FijoGrande[j] = StringFijo(20);
+    }
+    tiempos_fijo_grande[idx] = medir_ordenacion(FijoGrande, i, algoritmo);
     delete [] FijoGrande;
+  }
+
+  // 4. String Variable
+  idx = 0;
+  for (int i = a; i <= b; i += paso, idx++) {
+    string *Variable = new string[i];
+    for (int j = 0; j < i; j++) {
+      Variable[j] = StringVariable(5, 20);
+    }
+    tiempos_variable[idx] = medir_ordenacion(Variable, i, algoritmo);
     delete [] Variable;
+  }
+
+  // 5. String con Prefijo
+  idx = 0;
+  for (int i = a; i <= b; i += paso, idx++) {
+    string prefijo = CalcularPrefijo(i);
+    string *Prefijo = new string[i];
+    for (int j = 0; j < i; j++) {
+      Prefijo[j] = StringPrefijo(prefijo, 10);
+    }
+    tiempos_prefijo[idx] = medir_ordenacion(Prefijo, i, algoritmo);
     delete [] Prefijo;
   }
+
+  // Imprimir todos los resultados
+  for (int i = 0; i < num_tamaños; i++) {
+    cout << tamaños_usados[i] << "," << tiempos_enteros[i] << ","
+         << tiempos_fijo_pequeno[i] << "," << tiempos_fijo_grande[i] << ","
+         << tiempos_variable[i] << "," << tiempos_prefijo[i] << endl;
+  }
+
+  // Liberar arrays de resultados
+  delete [] tiempos_enteros;
+  delete [] tiempos_fijo_pequeno;
+  delete [] tiempos_fijo_grande;
+  delete [] tiempos_variable;
+  delete [] tiempos_prefijo;
+  delete [] tamaños_usados;
 }
 
 void Test2A(const int n, const int umbral_min, const int umbral_max, const string algoritmo) {
   // Iteracion lineal: umbral de 1 en 1
-  for (int umbral = umbral_min; umbral <= umbral_max && umbral <= 256; umbral++) {
-    UMBRAL = umbral;
+  // Calcular número de umbrales para reservar espacio
+  int num_umbrales = umbral_max - umbral_min + 1;
+  if (num_umbrales > 256) num_umbrales = 256 - umbral_min + 1;
 
-    //reservar 5 vectores:
-    int *Enteros = new int[n];
-    string *FijoPequeno = new string[n];
-    string *FijoGrande = new string[n];
-    string *Variable = new string[n];
-    string *Prefijo = new string[n];
+  // Vectores para almacenar resultados de cada umbral
+  double *tiempos_enteros = new double[num_umbrales];
+  double *tiempos_fijo_pequeno = new double[num_umbrales];
+  double *tiempos_fijo_grande = new double[num_umbrales];
+  double *tiempos_variable = new double[num_umbrales];
+  double *tiempos_prefijo = new double[num_umbrales];
+  int *umbrales_usados = new int[num_umbrales];
 
-    //inicializar vectores
-    string prefijo = CalcularPrefijo(n);
+  string prefijo = CalcularPrefijo(n);
 
-    for (int j = 0; j < n; j++) {
-      Enteros[j] = EnteroAleatorio(1000, 1);
-      FijoPequeno[j] = StringFijo(5);
-      FijoGrande[j] = StringFijo(500);
-      Variable[j] = StringVariable(5,500);
-      Prefijo[j] = StringPrefijo(prefijo, 15);
-    }
-
-    //ordenarlos y medir el tiempo
-    double tiempo_enteros = medir_ordenacion(Enteros, n, algoritmo);
-    double tiempo_fijo_pequeno = medir_ordenacion(FijoPequeno, n, algoritmo);
-    double tiempo_fijo_grande = medir_ordenacion(FijoGrande, n, algoritmo);
-    double tiempo_variable = medir_ordenacion(Variable, n, algoritmo);
-    double tiempo_prefijo = medir_ordenacion(Prefijo, n, algoritmo);
-
-    //imprimir resultados
-    cout << umbral << "," << tiempo_enteros << "," << tiempo_fijo_pequeno << ","
-         << tiempo_fijo_grande << "," << tiempo_variable << "," << tiempo_prefijo << endl;
-
-    //liberar espacio
-    delete [] Enteros;
-    delete [] FijoPequeno;
-    delete [] FijoGrande;
-    delete [] Variable;
-    delete [] Prefijo;
+  // Procesar cada tipo de vector por separado
+  // 1. Enteros
+  int *Enteros = new int[n];
+  for (int j = 0; j < n; j++) {
+    Enteros[j] = EnteroAleatorio(1000, 1);
   }
+  int idx = 0;
+  for (int umbral = umbral_min; umbral <= umbral_max && umbral <= 256; umbral++, idx++) {
+    UMBRAL = umbral;
+    umbrales_usados[idx] = umbral;
+    tiempos_enteros[idx] = medir_ordenacion(Enteros, n, algoritmo);
+  }
+  delete [] Enteros;
+
+  // 2. String Fijo Pequeño
+  string *FijoPequeno = new string[n];
+  for (int j = 0; j < n; j++) {
+    FijoPequeno[j] = StringFijo(5);
+  }
+  idx = 0;
+  for (int umbral = umbral_min; umbral <= umbral_max && umbral <= 256; umbral++, idx++) {
+    UMBRAL = umbral;
+    tiempos_fijo_pequeno[idx] = medir_ordenacion(FijoPequeno, n, algoritmo);
+  }
+  delete [] FijoPequeno;
+
+  // 3. String Fijo Grande
+  string *FijoGrande = new string[n];
+  for (int j = 0; j < n; j++) {
+    FijoGrande[j] = StringFijo(20);
+  }
+  idx = 0;
+  for (int umbral = umbral_min; umbral <= umbral_max && umbral <= 256; umbral++, idx++) {
+    UMBRAL = umbral;
+    tiempos_fijo_grande[idx] = medir_ordenacion(FijoGrande, n, algoritmo);
+  }
+  delete [] FijoGrande;
+
+  // 4. String Variable
+  string *Variable = new string[n];
+  for (int j = 0; j < n; j++) {
+    Variable[j] = StringVariable(5, 20);
+  }
+  idx = 0;
+  for (int umbral = umbral_min; umbral <= umbral_max && umbral <= 256; umbral++, idx++) {
+    UMBRAL = umbral;
+    tiempos_variable[idx] = medir_ordenacion(Variable, n, algoritmo);
+  }
+  delete [] Variable;
+
+  // 5. String con Prefijo
+  string *Prefijo = new string[n];
+  for (int j = 0; j < n; j++) {
+    Prefijo[j] = StringPrefijo(prefijo, 10);
+  }
+  idx = 0;
+  for (int umbral = umbral_min; umbral <= umbral_max && umbral <= 256; umbral++, idx++) {
+    UMBRAL = umbral;
+    tiempos_prefijo[idx] = medir_ordenacion(Prefijo, n, algoritmo);
+  }
+  delete [] Prefijo;
+
+  // Imprimir todos los resultados
+  for (int i = 0; i < idx; i++) {
+    cout << umbrales_usados[i] << "," << tiempos_enteros[i] << ","
+         << tiempos_fijo_pequeno[i] << "," << tiempos_fijo_grande[i] << ","
+         << tiempos_variable[i] << "," << tiempos_prefijo[i] << endl;
+  }
+
+  // Liberar arrays de resultados
+  delete [] tiempos_enteros;
+  delete [] tiempos_fijo_pequeno;
+  delete [] tiempos_fijo_grande;
+  delete [] tiempos_variable;
+  delete [] tiempos_prefijo;
+  delete [] umbrales_usados;
 }
 
 void Test2B(const int n, const int partida, const string algoritmo) {
   // Iteracion en potencias de 2
-  for (int umbral = partida; umbral <= 256; umbral *= 2) {
-    UMBRAL = umbral;
+  // Calcular número de umbrales (máximo 8: 2, 4, 8, 16, 32, 64, 128, 256)
+  int num_umbrales = 0;
+  for (int u = partida; u <= 256; u *= 2) num_umbrales++;
 
-    //reservar 5 vectores:
-    int *Enteros = new int[n];
-    string *FijoPequeno = new string[n];
-    string *FijoGrande = new string[n];
-    string *Variable = new string[n];
-    string *Prefijo = new string[n];
+  // Vectores para almacenar resultados de cada umbral
+  double *tiempos_enteros = new double[num_umbrales];
+  double *tiempos_fijo_pequeno = new double[num_umbrales];
+  double *tiempos_fijo_grande = new double[num_umbrales];
+  double *tiempos_variable = new double[num_umbrales];
+  double *tiempos_prefijo = new double[num_umbrales];
+  int *umbrales_usados = new int[num_umbrales];
 
-    //inicializar vectores
-    string prefijo = CalcularPrefijo(n);
+  string prefijo = CalcularPrefijo(n);
 
-    for (int j = 0; j < n; j++) {
-      Enteros[j] = EnteroAleatorio(1000, 1);
-      FijoPequeno[j] = StringFijo(5);
-      FijoGrande[j] = StringFijo(500);
-      Variable[j] = StringVariable(5,500);
-      Prefijo[j] = StringPrefijo(prefijo, 15);
-    }
-
-    //ordenarlos y medir el tiempo
-    double tiempo_enteros = medir_ordenacion(Enteros, n, algoritmo);
-    double tiempo_fijo_pequeno = medir_ordenacion(FijoPequeno, n, algoritmo);
-    double tiempo_fijo_grande = medir_ordenacion(FijoGrande, n, algoritmo);
-    double tiempo_variable = medir_ordenacion(Variable, n, algoritmo);
-    double tiempo_prefijo = medir_ordenacion(Prefijo, n, algoritmo);
-
-    //imprimir resultados
-    cout << umbral << "," << tiempo_enteros << "," << tiempo_fijo_pequeno << ","
-         << tiempo_fijo_grande << "," << tiempo_variable << "," << tiempo_prefijo << endl;
-
-    //liberar espacio
-    delete [] Enteros;
-    delete [] FijoPequeno;
-    delete [] FijoGrande;
-    delete [] Variable;
-    delete [] Prefijo;
+  // Procesar cada tipo de vector por separado
+  // 1. Enteros
+  int *Enteros = new int[n];
+  for (int j = 0; j < n; j++) {
+    Enteros[j] = EnteroAleatorio(1000, 1);
   }
+  int idx = 0;
+  for (int umbral = partida; umbral <= 256; umbral *= 2, idx++) {
+    UMBRAL = umbral;
+    umbrales_usados[idx] = umbral;
+    tiempos_enteros[idx] = medir_ordenacion(Enteros, n, algoritmo);
+  }
+  delete [] Enteros;
+
+  // 2. String Fijo Pequeño
+  string *FijoPequeno = new string[n];
+  for (int j = 0; j < n; j++) {
+    FijoPequeno[j] = StringFijo(5);
+  }
+  idx = 0;
+  for (int umbral = partida; umbral <= 256; umbral *= 2, idx++) {
+    UMBRAL = umbral;
+    tiempos_fijo_pequeno[idx] = medir_ordenacion(FijoPequeno, n, algoritmo);
+  }
+  delete [] FijoPequeno;
+
+  // 3. String Fijo Grande
+  string *FijoGrande = new string[n];
+  for (int j = 0; j < n; j++) {
+    FijoGrande[j] = StringFijo(20);
+  }
+  idx = 0;
+  for (int umbral = partida; umbral <= 256; umbral *= 2, idx++) {
+    UMBRAL = umbral;
+    tiempos_fijo_grande[idx] = medir_ordenacion(FijoGrande, n, algoritmo);
+  }
+  delete [] FijoGrande;
+
+  // 4. String Variable
+  string *Variable = new string[n];
+  for (int j = 0; j < n; j++) {
+    Variable[j] = StringVariable(5, 20);
+  }
+  idx = 0;
+  for (int umbral = partida; umbral <= 256; umbral *= 2, idx++) {
+    UMBRAL = umbral;
+    tiempos_variable[idx] = medir_ordenacion(Variable, n, algoritmo);
+  }
+  delete [] Variable;
+
+  // 5. String con Prefijo
+  string *Prefijo = new string[n];
+  for (int j = 0; j < n; j++) {
+    Prefijo[j] = StringPrefijo(prefijo, 10);
+  }
+  idx = 0;
+  for (int umbral = partida; umbral <= 256; umbral *= 2, idx++) {
+    UMBRAL = umbral;
+    tiempos_prefijo[idx] = medir_ordenacion(Prefijo, n, algoritmo);
+  }
+  delete [] Prefijo;
+
+  // Imprimir todos los resultados
+  for (int i = 0; i < num_umbrales; i++) {
+    cout << umbrales_usados[i] << "," << tiempos_enteros[i] << ","
+         << tiempos_fijo_pequeno[i] << "," << tiempos_fijo_grande[i] << ","
+         << tiempos_variable[i] << "," << tiempos_prefijo[i] << endl;
+  }
+
+  // Liberar arrays de resultados
+  delete [] tiempos_enteros;
+  delete [] tiempos_fijo_pequeno;
+  delete [] tiempos_fijo_grande;
+  delete [] tiempos_variable;
+  delete [] tiempos_prefijo;
+  delete [] umbrales_usados;
 }
 
 int main(int argc, char * argv[]) {
