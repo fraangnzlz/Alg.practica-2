@@ -469,14 +469,14 @@ void Test2_impl(const int n, const int* umbrales, int num_umbrales,
  *
  * Prueba todos los umbrales en [umbral_min, min(umbral_max, 256)].
  */
-void Test2A(const int n, const int umbral_min, const int umbral_max,
-            const string algoritmo) {
+void Test2A(const int n, const int umbral_min, const int umbral_max, const int paso, const string algoritmo) {
+
   int limite       = min(umbral_max, 256);
-  int num_umbrales = limite - umbral_min + 1;
+  int num_umbrales = (limite - umbral_min) / paso + 1;
 
   int* umbrales = new int[num_umbrales];
   for (int i = 0; i < num_umbrales; i++)
-    umbrales[i] = umbral_min + i;
+    umbrales[i] = umbral_min + i * paso;
 
   Test2_impl(n, umbrales, num_umbrales, algoritmo);
 
@@ -558,7 +558,7 @@ int main(int argc, char * argv[]) {
     int a, b, eleccion, partida = 0;
     cin >> a >> b;
     cout << "\nModo de incremento:\n"
-         << "  1) Paso lineal de 1 en 1\n"
+         << "  1) Paso lineal\n"
          << "  2) Paso en potencias de 2 hasta 256\n"
          << "Opcion: ";
     cin >> eleccion;
@@ -569,10 +569,15 @@ int main(int argc, char * argv[]) {
     }
     assert(a < b && b <= 256 && (eleccion == 1 || eleccion == 2));
 
-    if (eleccion == 1)
-      Test2A(N, a, b, algoritmo);
-    else
+    if (eleccion == 1) {
+      int paso;
+      cout << "\nIntroduzca el paso: ";
+      cin >> paso;
+      assert(paso >= 1 && paso <= b - a);
+      Test2A(N, a, b, paso, algoritmo);
+    } else {
       Test2B(N, partida, algoritmo);
+    }
   }
 
   return 0;
