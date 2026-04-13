@@ -79,7 +79,7 @@ static void insercion_lims(T Tvec[], int inicial, int final)
   T aux;
   for (i = inicial + 1; i < final; i++) {
     j = i;
-    while ((Tvec[j] < Tvec[j-1]) && (j > inicial)) {
+    while ((j > inicial) && (Tvec[j] < Tvec[j-1])) {
       aux = Tvec[j];
       Tvec[j] = Tvec[j - 1];
       Tvec[j - 1] = aux;
