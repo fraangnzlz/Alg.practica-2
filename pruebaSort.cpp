@@ -363,6 +363,7 @@ void medir_tipo(int n, const int* umbrales, int num_umbrales, const string& algo
  * Primera columna: parámetro variable (N o umbral).
  * Columnas 2-6:   tiempos para cada tipo de dato.
  */
+
 void imprimir_resultados(const string& nombre_archivo,
                          const int* param, int num,
                          const double* tiempos_enteros,
